@@ -41,8 +41,8 @@ class Character():
         should not be changed.
 
         Args:
-            mgr (Manager): The manager with which to register the newly
-                created character.
+            manager (Manager): The manager with which to register the
+                newly created character.
             name (str): The name to assign to the newly created
                 character.
                 
