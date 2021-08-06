@@ -1,6 +1,6 @@
-"""Finally, let's put the hats (Example 3) and the spells (Example 5)
-into the mix, and put back the guild cap, so that all our relations are
-together. We will make three changes so that everything looks
+"""12. Finally, let's put the hats (Example 3) and the spells (Example
+5) into the mix, and put back the guild cap, so that all our relations
+are together. We will make three changes so that everything looks
 consistent.
 
 First, we will change the `wear` method in Example 3 to a setter for the
