@@ -151,7 +151,9 @@ if __name__ == '__main__':
         isCarrying[conan] = potion
     except ValueError:
         print(isCarriedBy[potion].name + ' is carrying ' + potion.name)
-    del isCarrying[peewee]
-    isCarrying[conan] = dagger
-    isCarrying[conan] = ring
+    isCarriedBy[ring] = conan
+    while peewee in isCarrying.keys():
+        peeweesItem = next(iter(isCarrying[peewee]))
+        isCarrying.discard((peewee, peeweesItem))
+        isCarrying[conan] = peeweesItem
     print(isCarrying, isCarriedBy, sep='\n')

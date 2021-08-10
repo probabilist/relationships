@@ -21,7 +21,7 @@ class BiMapping(MutableMapping):
     """
     @property
     def inverse(self):
-        """bidict: The inverse mapping."""
+        """The inverse bi-mapping."""
         try:
             return self._inverse
         except AttributeError:
@@ -62,7 +62,7 @@ class RelSet(Collection):
     Subclasses do not need to provide iterator-based construction
     methods.
 
-    Subclasses must implement `__constains__`, `__iter__`, and
+    Subclasses must implement `__contains__`, `__iter__`, and
     `__len__`, and will inherit `__le__`, `__ge__`, `__eq__`, `__ne__`,
     `__lt__`, `__gt__`, and `isdisjoint`.
 
@@ -106,7 +106,7 @@ class MutableRelSet(RelSet):
     set operations. Subclasses do not need to provide iterator-based
     construction methods.
 
-    Subclasses must implement `__constains__`, `__iter__`, `__len__`,
+    Subclasses must implement `__contains__`, `__iter__`, `__len__`,
     `add`, and `discard`, and will inherit all the `RelSet` methods, as
     well as `pop`, `clear`, `remove`, `update`, and `difference_update`.
 
@@ -229,7 +229,7 @@ class MultiMapping(MutableRelSet):
         raise NotImplementedError
 
     def add(self, elem):
-        """`m((key, val))` is equivalent to `m[key] = val`.
+        """`m.add((key, val))` is equivalent to `m[key] = val`.
 
         Args:
             elem (2-tuple): The key-value pair to add.

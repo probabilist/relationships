@@ -8,12 +8,6 @@ class bidict(BiMapping):
     and a backward dictionary. Because of this, all keys and values must
     be immutable.
 
-    Attributes:
-        forward (dict): The dictionary that holds the bidict's keys and
-            values.
-        backward (dict): A dictionary whose keys and values are the
-            values and keys, respectively, of the `forward` attribute.
-
     """
 
     def __init__(self):
@@ -77,7 +71,7 @@ class dictofsets(MultiMapping):
     The `__contains__`, `__iter__`, and `__len__` methods work
     differently than for ordinary dictionaries. If `d` is a `dictofsets`
     object, then `(k,v) in d` is equivalent to `v in d[k]`. The
-    `__iter__` method returns an iterator of all key-value pairs. To
+    `__iter__` method returns an iterator over all key-value pairs. To
     iterate over keys, use the `keys` method. And `len(d)` is the total
     number of key-value pairs.
 
@@ -88,6 +82,8 @@ class dictofsets(MultiMapping):
     A `dictofsets` object also has a `discard` method, so that
     `d.discard((k, v))` removes `v` from the set `d[k]`, if it is
     present.
+
+    The `dictofsets` class does not implement the `inverse` property.
 
     """
     def __init__(self):
@@ -137,11 +133,8 @@ class dictofsets(MultiMapping):
         del self._dict[key]
 
     def keys(self):
-        """Returns an iterator of the keys of `dictofsets`."""
+        """Returns an iterator over the keys of `dictofsets`."""
         return self._dict.keys()
-
-    def __inverse__(self):
-        raise NotImplementedError
 
     def __repr__(self):
         return 'dictofsets(' + repr(dict(self._dict)) + ')'
@@ -162,8 +155,8 @@ class multidict(MultiMapping):
         self._set = set()
         self._rset = set()
 
-    def __contains__(self, item):
-        return (item in self._set)
+    def __contains__(self, elem):
+        return (elem in self._set)
 
     def __iter__(self):
         return self._set.__iter__()

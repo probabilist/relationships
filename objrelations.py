@@ -51,7 +51,7 @@ class OneToOne(BiMapping):
     `validate` method.
 
     Attributes:
-        bidict (bidict of int:int): The relation is stored under the
+        map (bidict of int:int): The relation is stored under the
             hood as a bidict mapping IDs to IDs, where the IDs are
             provided by the common Manager object.
 
@@ -77,7 +77,7 @@ class OneToOne(BiMapping):
         )
 
     def __len__(self):
-        return len(self.dict)
+        return len(self.map)
 
     def __setfreeval__(self, key, val):
         if self.validate(key, val):
@@ -117,11 +117,37 @@ class OneToOne(BiMapping):
         return disp + '})'
 
 class ManyToMany(MultiMapping):
+    """A many-to-many relation mapping objects to objects.
+
+    The ManyToMany object, as well as all objects in the relation,
+    should be managed by a common Manager object (or be `None`).
+    Otherwise, a ManyToMany object functions just like a multidict
+    object.
+
+    The ManyToMany class is meant to be subclassed. Subclasses may wish
+    to override the `validate` method to provide restrictions on adding
+    a pair to the relation. The `validate` method is called whenever
+    `__setitem__` is called. If `validate` returns True, the
+    `__setitem__` method proceeds normally. Otherwise, `__setitem__`
+    simply returns None. If the subclass wishes to raise an error when
+    validation fails, the error should be raised from within the
+    `validate` method.
+
+    Attributes:
+        map (multidict of int:int): The relation is stored under the
+            hood as a multidict mapping IDs to IDs, where the IDs are
+            provided by the common Manager object.
+
+    """
+
     def __init__(self):
         self.map = multidict()
 
     def __contains__(self, elem):
-        key, val = elem
+        try:
+            key, val = elem
+        except TypeError:
+            return False
         keyID = None if key is None else key._m_id
         valID = None if val is None else val._m_id
         return keyID, valID in self.map
@@ -139,17 +165,23 @@ class ManyToMany(MultiMapping):
         return len(self.map)
 
     def discard(self, elem):
-        key, val = elem
+        try:
+            key, val = elem
+        except TypeError:
+            return
         keyID = None if key is None else key._m_id
         valID = None if val is None else val._m_id
-        return self.map.discard(keyID, valID)
+        return self.map.discard((keyID, valID))
 
     def __getitem__(self, key):
         keyID = None if key is None else key._m_id
-        return tuple(
-            None if valID is None else self._m_manager.objects[valID]
-            for valID in self.map[keyID]
-        )
+        try:
+            return tuple(
+                None if valID is None else self._m_manager.objects[valID]
+                for valID in self.map[keyID]
+            )
+        except KeyError:
+            raise KeyError(key)
 
     def __setitem__(self, key, val):
         if self.validate(key, val):
@@ -159,7 +191,10 @@ class ManyToMany(MultiMapping):
 
     def __delitem__(self, key):
         keyID = None if key is None else key._m_id
-        del self.map[keyID]
+        try:
+            del self.map[keyID]
+        except KeyError:
+            raise KeyError(key)
 
     def keys(self):
         return (
@@ -173,8 +208,8 @@ class ManyToMany(MultiMapping):
 
     def _inverseinit(self, inverse):
         inverse.map = self.map.inverse
-        def validate(self, key, val):
-            return self.inverse.validate(val, key)
+        def validate(slf, key, val):
+            return slf.inverse.validate(val, key)
         inverse.validate = MethodType(validate, inverse)
         return inverse        
 
@@ -202,6 +237,28 @@ class ManyToMany(MultiMapping):
         return disp + '})'
 
 class ManyToOne(ManyToMany):
+    """A many-to-one relation mapping objects to objects.
+
+    The ManyToOne object, as well as all objects in the relation, should
+    be managed by a common Manager object (or be `None`). Otherwise, a
+    ManyToOne object functions just like an invertibledict object.
+
+    The ManyToOne class is meant to be subclassed. Subclasses may wish
+    to override the `validate` method to provide restrictions on adding
+    a pair to the relation. The `validate` method is called whenever
+    `__setitem__` is called. If `validate` returns True, the
+    `__setitem__` method proceeds normally. Otherwise, `__setitem__`
+    simply returns None. If the subclass wishes to raise an error when
+    validation fails, the error should be raised from within the
+    `validate` method.
+
+    Attributes:
+        map (invertibledict of int:int): The relation is stored under
+            the hood as a multidict mapping IDs to IDs, where the IDs
+            are provided by the common Manager object.
+
+    """
+
     def __init__(self):
         self.map = invertibledict()
 
@@ -211,7 +268,10 @@ class ManyToOne(ManyToMany):
 
     def __getitem__(self, key):
         keyID = None if key is None else key._m_id
-        valID = self.map[keyID]
+        try:
+            valID = self.map[keyID]
+        except KeyError:
+            raise KeyError(key)
         return None if valID is None else self._m_manager.objects[valID]
 
     def __repr__(self):
@@ -221,6 +281,28 @@ class ManyToOne(ManyToMany):
         return disp + '})'
 
 class OneToMany(ManyToMany):
+    """A one-to-many relation mapping objects to objects.
+
+    The OneToMany object, as well as all objects in the relation, should
+    be managed by a common Manager object (or be `None`). Otherwise, a
+    OneToMany object functions just like an inversedict object.
+
+    The OneToMany class is meant to be subclassed. Subclasses may wish
+    to override the `validate` method to provide restrictions on adding
+    a pair to the relation. The `validate` method is called whenever
+    `__setitem__` is called. If `validate` returns True, the
+    `__setitem__` method proceeds normally. Otherwise, `__setitem__`
+    simply returns None. If the subclass wishes to raise an error when
+    validation fails, the error should be raised from within the
+    `validate` method.
+
+    Attributes:
+        map (inversedict of int:int): The relation is stored under the
+            hood as a multidict mapping IDs to IDs, where the IDs are
+            provided by the common Manager object.
+
+    """
+
     def __init__(self):
         self.map = inversedict()
 
