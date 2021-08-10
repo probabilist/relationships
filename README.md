@@ -25,3 +25,5 @@
 `objrelations.py` uses a factory pattern to construct object mappings from these new data types.
 
 `example.py` illustrates the use of the object mappings with typical game objects like `Character`, `Spell`, `Guild`, and so on.
+
+`objrelations2.py` and `example2.py` do the same thing by overriding the `__new__` method instead of using a factory pattern.
